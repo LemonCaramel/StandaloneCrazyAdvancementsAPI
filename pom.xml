@@ -4,7 +4,7 @@
 
     <groupId>eu.endercentral</groupId>
     <artifactId>crazy_advancements</artifactId>
-    <version>1.13.7</version>
+    <version>87</version>
     <packaging>jar</packaging>
 
     <name>CrazyAdvancementsAPI</name>
@@ -16,9 +16,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.15-R0.1-SNAPSHOT</version>
+            <groupId>com.destroystokyo.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.15.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -41,8 +41,8 @@
             <url>file:${file.separator}${file.separator}${project.basedir}${file.separator}lib</url>
         </repository>
         <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+            <id>papermc-repo</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
     </repositories>
 

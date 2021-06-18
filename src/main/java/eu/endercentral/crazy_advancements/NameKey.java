@@ -3,9 +3,9 @@ package eu.endercentral.crazy_advancements;
 import net.minecraft.server.v1_15_R1.MinecraftKey;
 
 public class NameKey {
-	
-	private String namespace = "minecraft";
-	private String key;
+
+	private final String namespace;
+	private final String key;
 	
 	private transient MinecraftKey mcKey;
 	
@@ -26,6 +26,7 @@ public class NameKey {
 	public NameKey(String key) {
 		String[] split = key.split(":");
 		if(split.length < 2) {
+			this.namespace = "minecraft";
 			this.key = key.toLowerCase();
 		} else {
 			this.namespace = split[0].toLowerCase();
