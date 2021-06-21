@@ -10,7 +10,6 @@ import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import eu.endercentral.crazy_advancements.SaveMethod;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -43,7 +42,6 @@ import net.minecraft.server.v1_15_R1.ItemStack;
 import net.minecraft.server.v1_15_R1.MinecraftKey;
 import net.minecraft.server.v1_15_R1.PacketPlayOutAdvancements;
 import net.minecraft.server.v1_15_R1.PacketPlayOutChat;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public final class AdvancementManager {
 
@@ -620,10 +618,11 @@ public final class AdvancementManager {
      * @param player Player to update
      * @param from   Advancement to check from
      */
-    public void updateAllPossiblyAffectedVisibilities(Player player, Advancement from) {
+    public void updateAllPossiblyAffectedVisibilities(Player player, Advancement from) { this.updateAllPossiblyAffectedVisibilities(player, from, false); }
+    public void updateAllPossiblyAffectedVisibilities(Player player, Advancement from, boolean reset) {
         List<Advancement> updated = from.getRow();
         for (Advancement adv : updated) {
-            updateVisibility(player, adv);
+            updateVisibility(player, adv, reset);
         }
     }
 
@@ -633,7 +632,7 @@ public final class AdvancementManager {
      * @param player      Player to update
      * @param advancement Advancement to update
      */
-    public void updateVisibility(Player player, Advancement advancement) {
+    public void updateVisibility(Player player, Advancement advancement, boolean reset) {
         if (players.contains(player)) {
             Collection<net.minecraft.server.v1_15_R1.Advancement> advs = new ArrayList<>();
             Set<MinecraftKey> remove = new HashSet<>();
@@ -719,7 +718,7 @@ public final class AdvancementManager {
             }
 
             //Packet
-            PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(false, advs, remove, prgs);
+            PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(reset, advs, remove, prgs);
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
         }
     }
@@ -1034,7 +1033,7 @@ public final class AdvancementManager {
         advancement.setAwardedCriteria(awardedCriteria);
 
         updateProgress(player, false, true, reset, advancement);
-        updateAllPossiblyAffectedVisibilities(player, advancement);
+        updateAllPossiblyAffectedVisibilities(player, advancement, reset);
 
         CriteriaGrantEvent event = new CriteriaGrantEvent(this, advancement, criteria, player);
         Bukkit.getPluginManager().callEvent(event);
