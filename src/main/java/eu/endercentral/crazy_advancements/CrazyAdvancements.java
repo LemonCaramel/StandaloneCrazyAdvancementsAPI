@@ -64,7 +64,7 @@ public class CrazyAdvancements implements Listener {
         protocolManager.addPacketListener(
                 new PacketAdapter(pl, ListenerPriority.NORMAL, PacketType.Play.Client.ADVANCEMENTS) {
                     @Override
-                    public void onPacketSending(PacketEvent event) {
+                    public void onPacketReceiving(PacketEvent event) {
                         PacketContainer container = event.getPacket();
                         Player player = event.getPlayer();
                         if (container.getEnumModifier(Status.class, 0).readSafely(0) == Status.OPENED_TAB) {
