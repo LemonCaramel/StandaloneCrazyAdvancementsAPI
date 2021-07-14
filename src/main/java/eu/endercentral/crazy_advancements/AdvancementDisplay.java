@@ -63,7 +63,7 @@ public class AdvancementDisplay {
 	public AdvancementDisplay(Material icon, String title, String description, AdvancementFrame frame, boolean showToast, boolean announceChat, AdvancementVisibility visibility) {
 		this.icon = new ItemStack(icon);
 		this.iconID = icon;
-		if(title.contains("�")) title += "�a";
+		if (title.contains("&")) title += "§";
 		this.title = new JSONMessage("{\"text\":\"" + title.replaceAll("\"", "\\\"") + "\"}");
 		this.description = new JSONMessage("{\"text\":\"" + description.replaceAll("\"", "\\\"") + "\"}");
 		this.frame = frame;
@@ -109,7 +109,7 @@ public class AdvancementDisplay {
 	public AdvancementDisplay(Material icon, String title, String description, AdvancementFrame frame, String backgroundTexture, boolean showToast, boolean announceChat, AdvancementVisibility visibility) {
 		this.icon = new ItemStack(icon);
 		this.iconID = icon;
-		if(title.contains("�")) title += "�a";
+		if (title.contains("&")) title += "§";
 		this.title = new JSONMessage("{\"text\":\"" + title.replaceAll("\"", "\\\"") + "\"}");
 		this.description = new JSONMessage("{\"text\":\"" + description.replaceAll("\"", "\\\"") + "\"}");
 		this.frame = frame;
@@ -155,7 +155,7 @@ public class AdvancementDisplay {
 	public AdvancementDisplay(ItemStack icon, String title, String description, AdvancementFrame frame, boolean showToast, boolean announceChat, AdvancementVisibility visibility) {
 		this.icon = icon;
 		this.iconID = icon.getType();
-		if(title.contains("�")) title += "�a";
+		if (title.contains("&")) title += "§";
 		this.title = new JSONMessage("{\"text\":\"" + title.replaceAll("\"", "\\\"") + "\"}");
 		this.description = new JSONMessage("{\"text\":\"" + description.replaceAll("\"", "\\\"") + "\"}");
 		this.frame = frame;
@@ -201,7 +201,7 @@ public class AdvancementDisplay {
 	public AdvancementDisplay(ItemStack icon, String title, String description, AdvancementFrame frame, String backgroundTexture, boolean showToast, boolean announceChat, AdvancementVisibility visibility) {
 		this.icon = icon;
 		this.iconID = icon.getType();
-		if(title.contains("�")) title += "�a";
+		if (title.contains("&")) title += "§";
 		this.title = new JSONMessage("{\"text\":\"" + title.replaceAll("\"", "\\\"") + "\"}");
 		this.description = new JSONMessage("{\"text\":\"" + description.replaceAll("\"", "\\\"") + "\"}");
 		this.frame = frame;

@@ -4,12 +4,20 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.*;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.MinecraftKey;
+import eu.endercentral.crazy_advancements.events.AdvancementScreenCloseEvent;
+import eu.endercentral.crazy_advancements.events.AdvancementTabChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Warning;
 import javax.annotation.Nullable;
 
-import org.bukkit.craftbukkit.v1_16_R3.command.ProxiedNativeCommandSender;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,24 +37,54 @@ public class CrazyAdvancements  implements Listener {
 	public static UUID CHAT_MESSAGE_UUID = new UUID(0, 0);
 	
 	private AdvancementManager fileAdvancementManager;
-	private static AdvancementPacketReceiver packetReciever;
 
 	public static JavaPlugin plugin;
 	private static ArrayList<Player> initiatedPlayers = new ArrayList<>();
 	private static ArrayList<AdvancementManager> managers = new ArrayList<>();
 	private static boolean announceAdvancementMessages = true;
 	private static HashMap<String, NameKey> openedTabs = new HashMap<>();
+	private static ProtocolManager protocolManager;
+	public enum Status {
+		OPENED_TAB,
+		CLOSED_SCREEN;
+	}
 
 	/**
 	 * Create new instance of CrazyAdvancements
 	 *
 	 * @param pl The instance of the JavaPlugin using this API
 	 */
-	public CrazyAdvancements(JavaPlugin pl) {
+	public CrazyAdvancements(JavaPlugin pl) {}
+	public CrazyAdvancements(JavaPlugin pl, ProtocolManager manager, boolean loadFile) {
 		plugin = pl;
 		fileAdvancementManager = new AdvancementManager();
+		protocolManager = manager;
 
-		packetReciever = new AdvancementPacketReceiver();
+		protocolManager.addPacketListener(
+				new PacketAdapter(pl, ListenerPriority.NORMAL, PacketType.Play.Client.ADVANCEMENTS) {
+					@Override
+					public void onPacketReceiving(PacketEvent event) {
+						PacketContainer container = event.getPacket();
+						Player player = event.getPlayer();
+						if (container.getEnumModifier(Status.class, 0).readSafely(0) == Status.OPENED_TAB) {
+							MinecraftKey key = container.getMinecraftKeys().readSafely(0);
+							NameKey name = new NameKey(key.getPrefix(), key.getKey());
+							AdvancementTabChangeEvent changeEvent = new AdvancementTabChangeEvent(event.getPlayer(), name);
+							Bukkit.getPluginManager().callEvent(changeEvent);
+							if (event.isCancelled()) {
+								CrazyAdvancements.clearActiveTab(player);
+							} else {
+								if (!changeEvent.getTabAdvancement().equals(name))
+									CrazyAdvancements.setActiveTab(player, changeEvent.getTabAdvancement());
+								else
+									CrazyAdvancements.setActiveTab(player, name, false);
+							}
+						} else {
+							Bukkit.getPluginManager().callEvent(new AdvancementScreenCloseEvent(player));
+						}
+					}
+				}
+		);
 
 		//Registering Players
 		Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -56,7 +94,6 @@ public class CrazyAdvancements  implements Listener {
 
 			for(Player player : Bukkit.getOnlinePlayers()) {
 				fileAdvancementManager.addPlayer(player);
-				packetReciever.initPlayer(player);
 				initiatedPlayers.add(player);
 			}
 		}, 5);
@@ -75,7 +112,6 @@ public class CrazyAdvancements  implements Listener {
 		}
 		PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(true, new ArrayList<>(), new HashSet<>(), new HashMap<>());
 		for(Player p : Bukkit.getOnlinePlayers()) {
-			packetReciever.close(p, packetReciever.getHandlers().get(p.getName()));
 			((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
 		}
 	}
@@ -173,12 +209,10 @@ public class CrazyAdvancements  implements Listener {
 				initiatedPlayers.add(player);
 			}
 		}, 5);
-		packetReciever.initPlayer(player);
 	}
 	
 	@EventHandler
 	public void quit(PlayerQuitEvent e) {
-		packetReciever.close(e.getPlayer(), packetReciever.getHandlers().get(e.getPlayer().getName()));
 		if(initiatedPlayers.contains(e.getPlayer())) initiatedPlayers.remove(e.getPlayer());
 	}
 	

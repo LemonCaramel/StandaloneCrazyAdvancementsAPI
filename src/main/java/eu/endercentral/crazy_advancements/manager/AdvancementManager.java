@@ -553,7 +553,8 @@ public final class AdvancementManager {
         updateProgress(player, false, true, advancementsUpdated);
     }
 
-    private void updateProgress(Player player, boolean alreadyGranted, boolean fireEvent, Advancement... advancementsUpdated) {
+    private void updateProgress(Player player, boolean alreadyGranted, boolean fireEvent, Advancement... advancementsUpdated) { this.updateProgress(player, alreadyGranted, fireEvent, false, advancementsUpdated); }
+    private void updateProgress(Player player, boolean alreadyGranted, boolean fireEvent, boolean reset, Advancement... advancementsUpdated) {
         if(players.contains(player)) {
             Collection<net.minecraft.server.v1_16_R3.Advancement> advs = new ArrayList<>();
             Set<MinecraftKey> remove = new HashSet<>();
@@ -649,7 +650,7 @@ public final class AdvancementManager {
                 }
             }
 
-            PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(false, advs, remove, prgs);
+            PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(reset, advs, remove, prgs);
             ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
         }
     }
@@ -660,10 +661,11 @@ public final class AdvancementManager {
      * @param player Player to update
      * @param from Advancement to check from
      */
-    public void updateAllPossiblyAffectedVisibilities(Player player, Advancement from) {
+    public void updateAllPossiblyAffectedVisibilities(Player player, Advancement from) { this.updateAllPossiblyAffectedVisibilities(player, from, false); }
+    public void updateAllPossiblyAffectedVisibilities(Player player, Advancement from, boolean reset) {
         List<Advancement> updated = from.getRow();
         for(Advancement adv : updated) {
-            updateVisibility(player, adv);
+            updateVisibility(player, adv, reset);
         }
     }
 
@@ -673,7 +675,7 @@ public final class AdvancementManager {
      * @param player Player to update
      * @param advancement Advancement to update
      */
-    public void updateVisibility(Player player, Advancement advancement) {
+    public void updateVisibility(Player player, Advancement advancement, boolean reset) {
         if(players.contains(player)) {
             Collection<net.minecraft.server.v1_16_R3.Advancement> advs = new ArrayList<>();
             Set<MinecraftKey> remove = new HashSet<>();
@@ -766,7 +768,7 @@ public final class AdvancementManager {
             }
 
             //Packet
-            PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(false, advs, remove, prgs);
+            PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(reset, advs, remove, prgs);
             ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
         }
     }
@@ -1095,7 +1097,8 @@ public final class AdvancementManager {
      * @param advancement
      * @param criteria Array of criteria to grant
      */
-    public void grantCriteria(Player player, Advancement advancement, String... criteria) {
+    public void grantCriteria(Player player, Advancement advancement, String... criteria) { this.grantCriteria(player, advancement, false, criteria); }
+    public void grantCriteria(Player player, Advancement advancement, boolean reset, String... criteria) {
         checkAwarded(player, advancement);
 
         Map<String, HashSet<String>> awardedCriteria = advancement.getAwardedCriteria();
@@ -1107,8 +1110,8 @@ public final class AdvancementManager {
         awardedCriteria.put(player.getUniqueId().toString(), awarded);
         advancement.setAwardedCriteria(awardedCriteria);
 
-        updateProgress(player, false, true, advancement);
-        updateAllPossiblyAffectedVisibilities(player, advancement);
+        updateProgress(player, false, true, reset, advancement);
+        updateAllPossiblyAffectedVisibilities(player, advancement, reset);
 
         CriteriaGrantEvent event = new CriteriaGrantEvent(this, advancement, criteria, player);
         Bukkit.getPluginManager().callEvent(event);
@@ -1492,7 +1495,7 @@ public final class AdvancementManager {
                         }
 
                         if(saveMethod == SaveMethod.DEFAULT) {
-                            grantCriteria(player, advancement, loaded.toArray(new String[loaded.size()]));
+                            grantCriteria(player, advancement,true, loaded.toArray(new String[loaded.size()]));
                         }
                     }
                 }
@@ -1548,7 +1551,7 @@ public final class AdvancementManager {
                         }
 
                         if(saveMethod == SaveMethod.DEFAULT) {
-                            grantCriteria(player, advancement, loaded.toArray(new String[loaded.size()]));
+                            grantCriteria(player, advancement, true, loaded.toArray(new String[loaded.size()]));
                         }
                     }
                 }
@@ -1599,7 +1602,7 @@ public final class AdvancementManager {
                 }
 
                 if(saveMethod == SaveMethod.DEFAULT) {
-                    grantCriteria(player, advancement, loaded.toArray(new String[loaded.size()]));
+                    grantCriteria(player, advancement, true, loaded.toArray(new String[loaded.size()]));
                 }
             }
         }
@@ -1644,7 +1647,7 @@ public final class AdvancementManager {
                 }
 
                 if(saveMethod == SaveMethod.DEFAULT) {
-                    grantCriteria(player, advancement, loaded.toArray(new String[loaded.size()]));
+                    grantCriteria(player, advancement, true, loaded.toArray(new String[loaded.size()]));
                 }
             }
         }
