@@ -213,7 +213,7 @@ public class CrazyAdvancements  implements Listener {
 	
 	@EventHandler
 	public void quit(PlayerQuitEvent e) {
-		if(initiatedPlayers.contains(e.getPlayer())) initiatedPlayers.remove(e.getPlayer());
+		initiatedPlayers.remove(e.getPlayer());
 	}
 	
 	@Warning(reason = "Unsafe")

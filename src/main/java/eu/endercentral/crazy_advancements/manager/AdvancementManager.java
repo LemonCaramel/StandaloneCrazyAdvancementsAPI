@@ -310,7 +310,7 @@ public final class AdvancementManager {
         }
 
         //Packet
-        PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(false, advs, remove, prgs);
+        PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(true, advs, remove, prgs);
         ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
     }
 
@@ -1110,7 +1110,7 @@ public final class AdvancementManager {
         awardedCriteria.put(player.getUniqueId().toString(), awarded);
         advancement.setAwardedCriteria(awardedCriteria);
 
-        updateProgress(player, false, true, reset, advancement);
+        updateProgress(player, !reset, reset, reset, advancement);
         updateAllPossiblyAffectedVisibilities(player, advancement, reset);
 
         CriteriaGrantEvent event = new CriteriaGrantEvent(this, advancement, criteria, player);
